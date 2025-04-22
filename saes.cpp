@@ -176,7 +176,7 @@ string base64Encode(const vector<uint8_t>& data) {
 int main () {
     
     cout << "This is a Simplified AES Implementation at UnB 2025.1!" << endl;
-    cout << "The plainText tested here is '0x3F1B' (16 bits)" << endl;
+    cout << "The plainText tested here is 'CAFE' (16 bits)" << endl;
     cout << "The key tested here is '0x7149' (16 bits)" << endl;
     cout << endl;
 
