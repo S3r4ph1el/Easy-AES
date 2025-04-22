@@ -7,6 +7,7 @@ using namespace std;
 typedef bitset<4> uint4_t; // NIBBLE (4 bits)
 typedef unsigned char uint8_t;  // BYTE (8 bits)
 typedef unsigned short uint16_t; // WORD (16 bits)
+typedef unsigned long long uint128_t; // 128 bits
 
 /*################ Constants ################*/
 
@@ -33,14 +34,41 @@ const string BASE64_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxy
 /*################ Global Variables ################*/
 
 // Bloco de 16 bits (4 nibbles)
-uint4_t stateArray[2][2] = { 0 }; // 2x2 matrix for 4 nibbles
-uint16_t roundKeys[3] = { 0 }; // Placeholder for round keys
+uint4_t stateArray[2][2] = { 0 }; // 2x2 matrix to store nibbles
+uint16_t roundKeys[3] = { 0 };    // Placeholder for round keys
 
 
 /*################ Functions ################*/
 
+// Function to encode data to Base64
+string base64Encode(const vector<uint8_t>& data) {
+    string encoded;
+    int val = 0;
+    int bits = -6;
+    const int b63 = 0x3F;
+
+    for (uint8_t byte : data) {
+        val = (val << 8) + byte;
+        bits += 8;
+        while (bits >= 0) {
+            encoded.push_back(BASE64_CHARS[(val >> bits) & b63]);
+            bits -= 6;
+        }
+    }
+
+    if (bits > -6) {
+        encoded.push_back(BASE64_CHARS[((val << 8) >> (bits + 8)) & b63]);
+    }
+
+    while (encoded.size() % 4) {
+        encoded.push_back('=');
+    }
+
+    return encoded;
+}
+
 uint8_t SubWord(uint8_t input) {
-    return S_BOX[input]; // Perform substitution using S-Box
+    return S_BOX[input];          // Perform substitution using S-Box
 }
 
 uint8_t RotWord(uint8_t input) {
@@ -146,113 +174,94 @@ void printState(){
 
 }
 
-// Function to encode data to Base64
-string base64Encode(const vector<uint8_t>& data) {
-    string encoded;
-    int val = 0;
-    int bits = -6;
-    const int b63 = 0x3F;
+void encrypt_saes_ecb(uint16_t key, uint128_t plainText) {
+    
+    cout << "Plaintext (hex): " << hex << plainText << endl;
+    cout << endl;
 
-    for (uint8_t byte : data) {
-        val = (val << 8) + byte;
-        bits += 8;
-        while (bits >= 0) {
-            encoded.push_back(BASE64_CHARS[(val >> bits) & b63]);
-            bits -= 6;
+    unsigned long long int plainTextHex = static_cast<unsigned long long int>(stoul(to_string(plainText), nullptr, 16));
+
+    vector<uint16_t> blockVector(2); // Vector to store encrypted blocks
+    int count = 0;
+
+    while (plainTextHex > 0) {
+        // Extract the next 16-bit block from the plaintext
+        uint16_t block = plainTextHex & 0xFFFF;
+
+        // Load the block into the state array
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                stateArray[i][j] = (block >> ((1 - i) * 4 + (1 - j) * 8)) & 0xF;
+            }
         }
+
+        cout << "Initial State " << "Block: " << count + 1 << endl;
+        printState();
+
+        // Round 0: AddRoundKey[0]
+        AddRoundKey(stateArray, roundKeys[0]);
+        cout << "After AddRoundKey (Round 0):" << endl;
+        printState();
+
+        // Round 1: SubNibbles, ShiftRows, MixColumns, AddRoundKey[1]
+        SubNibbles(stateArray);
+        ShiftRows(stateArray);
+        MixColumns(stateArray);
+        AddRoundKey(stateArray, roundKeys[1]);
+        cout << "After Round 1:" << endl;
+        printState();
+
+        // Round 2: SubNibbles, ShiftRows, AddRoundKey[2]
+        SubNibbles(stateArray);
+        ShiftRows(stateArray);
+        AddRoundKey(stateArray, roundKeys[2]);
+        cout << "After Round 2 (Final State):" << endl;
+        printState();
+
+        // Save the encrypted block in vector
+        uint16_t encryptedBlock = 0;
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                encryptedBlock |= (stateArray[i][j].to_ulong() << ((1 - i) * 4 + (1 - j) * 8));
+            }
+        }
+        blockVector[count] = encryptedBlock;
+
+
+        // Move to the next 16-bit block
+        plainTextHex >>= 16;
+        count++;
     }
 
-    if (bits > -6) {
-        encoded.push_back(BASE64_CHARS[((val << 8) >> (bits + 8)) & b63]);
+    cout << "Encrypted Blocks:" << endl;
+    for (int i = 0; i < count; i++) {
+        cout << "Block " << i + 1 << ": " << hex << blockVector[i] << endl;
     }
-
-    while (encoded.size() % 4) {
-        encoded.push_back('=');
+    cout << endl;
+    cout << "Encrypted Text (Base64): " << endl;
+    for (int i = 0; i < count; i++) {
+        cout << base64Encode({static_cast<uint8_t>(blockVector[i] >> 8), static_cast<uint8_t>(blockVector[i] & 0xFF)});
     }
-
-    return encoded;
+    cout << endl;
 }
 
 int main () {
     
-    cout << "This is a Simplified AES Implementation at UnB 2025.1!" << endl;
-    cout << "The plainText tested here is 'CAFE' (16 bits)" << endl;
+    cout << "ECB Demonstration!" << endl;
+    cout << "The plainText: 'Veni, Vidi, Vici'" << endl;
     cout << "The key tested here is '0x7149' (16 bits)" << endl;
     cout << endl;
 
-    string plainText = "CAFE"; // 16-bit plaintext
-    // uint16_t plainTextHex = 0x3F1B; // For testing purposes
-    // uint16_t key = "0xF0CA"; // For testing purposes
+    string plainText = "Veni, Vidi, Vici"; // 16-bit plaintext
     uint16_t key = 0x7149; // 16-bit key
 
     // Convert hex string to unsigned short
     unsigned short int plainTextHex = static_cast<unsigned short int>(stoul(plainText, nullptr, 16));
 
-    // Split the 16-bit plaintext into 4 nibbles and assign to the stateArray matrix
-    stateArray[0][0] = (plainTextHex >> 12) & 0xF; // First uint4_t (most significant)
-    stateArray[1][0] = (plainTextHex >> 8) & 0xF;  // Second uint4_t
-    stateArray[0][1] = (plainTextHex >> 4) & 0xF;  // Third uint4_t
-    stateArray[1][1] = plainTextHex & 0xF;         // Fourth uint4_t (least significant)
-
-    cout << "##### Initial State - Plain Text #####" << endl;
-    cout << endl;
-    printState();
-    cout << endl;
-
-    cout << "##### Key Expansion ##### " << endl;
-    cout << endl;
+    // Expand the key
     ExpandKey(key, roundKeys);
 
-    cout << "### AddRoundKey [0] ###" << endl;
-    cout << endl;
-    AddRoundKey(stateArray, roundKeys[0]);
-    printState();
-
-    cout << "### SubNibbles State - Round 1 ###" << endl;
-    cout << endl;
-    SubNibbles(stateArray);
-    printState();
-
-    cout << "### ShiftRows State - Round 1 ###" << endl;
-    cout << endl;
-    ShiftRows(stateArray);
-    printState();
-
-    cout << "### MixColumns State - Round 1 ###" << endl;
-    cout << endl;
-    MixColumns(stateArray);
-    printState();
-
-    cout << "### AddRoundKey [1] ###" << endl;
-    cout << endl;
-    AddRoundKey(stateArray, roundKeys[1]);
-    printState();
-
-    cout << "### SubNibbles State - Round 2 ###" << endl;
-    cout << endl;
-    SubNibbles(stateArray);
-    printState();
-
-    cout << "### ShiftRows State - Round 2 ###" << endl;
-    cout << endl;
-    ShiftRows(stateArray);
-    printState();
-
-    cout << "### AddRoundKey [2] ###" << endl;
-    cout << endl;
-    AddRoundKey(stateArray, roundKeys[2]);
-    printState();
-
-    cout << "##### Final State - Encrypted Text #####" << endl;
-    cout << endl;
-    printState();
-
-    cout << "Encrypted Hex: " << hex << uppercase << (stateArray[0][0].to_ulong() << 12 | stateArray[1][0].to_ulong() << 8 | stateArray[0][1].to_ulong() << 4 | stateArray[1][1].to_ulong()) << endl;
-    cout << "Base64 Encoded: ";
-    vector<uint8_t> encryptedData = { static_cast<uint8_t>(stateArray[0][0].to_ulong()), static_cast<uint8_t>(stateArray[1][0].to_ulong()), static_cast<uint8_t>(stateArray[0][1].to_ulong()), static_cast<uint8_t>(stateArray[1][1].to_ulong()) };
-    string base64Encoded = base64Encode(encryptedData);
-    cout << base64Encoded << endl;
-    cout << endl;
+    encrypt_saes_ecb(key, plainTextHex);
     
     return 0;
 
