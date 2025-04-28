@@ -65,7 +65,7 @@ void ExpandKey(uint16_t masterKey, uint16_t roundKeys[]) {
     roundKeys[2] = (b[4] << 8) | b[5]; // Second round key
 
     for (int i = 0; i < 3; i++) {
-        cout << "Round Keys " << i << ": " << hex << roundKeys[i] << endl;
+        cout << "Round Keys " << i << ": 0x" << hex << roundKeys[i] << endl;
     }
 
     cout << endl;
@@ -95,7 +95,7 @@ void SubNibbles(uint4_t stateArray[2][2]) {
     for (int i = 0; i < 2; i++) {
         for (int j = 0; j < 2; j++) {
             stateArray[i][j] = S_BOX[stateArray[i][j].to_ulong()];
-            cout << "SubNibbles stateArray[" << i << "][" << j << "]: " << hex << stateArray[i][j].to_ulong() << endl;
+            cout << "SubNibbles stateArray[" << i << "][" << j << "]: 0x" << hex << stateArray[i][j].to_ulong() << endl;
         }
     }
 
@@ -110,8 +110,8 @@ void ShiftRows(uint4_t stateArray[2][2]) {
     stateArray[1][0] = stateArray[1][1];
     stateArray[1][1] = temp;
 
-    cout << "ShiftRows stateArray[1][0]: " << hex << stateArray[1][0].to_ulong() << endl;
-    cout << "ShiftRows stateArray[1][1]: " << hex << stateArray[1][1].to_ulong() << endl;
+    cout << "ShiftRows stateArray[1][0]: 0x" << hex << stateArray[1][0].to_ulong() << endl;
+    cout << "ShiftRows stateArray[1][1]: 0x" << hex << stateArray[1][1].to_ulong() << endl;
     cout << endl;
 
 }
@@ -177,7 +177,7 @@ int main () {
     
     cout << "This is a Simplified AES Implementation at UnB 2025.1!" << endl;
     cout << "The plainText tested here is 'cd' (16 bits)" << endl;
-    cout << "The key tested here is '0x7149' (16 bits)" << endl;
+    cout << "The key tested here is '0x7144' (16 bits)" << endl;
     cout << endl;
 
     
@@ -186,7 +186,7 @@ int main () {
     // uint16_t plainTextHex = 0x3F1B; // For testing purposes
     // uint16_t key = "0xF0CA"; // For testing purposes
     string plainText = "cd"; // 16-bit plaintext
-    uint16_t key = 0x7149; // 16-bit key
+    uint16_t key = 0x7144; // 16-bit key
 
     // Convert hex string to unsigned short
     //unsigned short int plainTextHex = static_cast<unsigned short int>(stoul(plainText, nullptr, 16));

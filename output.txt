@@ -1,6 +1,6 @@
 This is a Simplified AES Implementation at UnB 2025.1!
 The plainText tested here is 'cd' (16 bits)
-The key tested here is '0x7149' (16 bits)
+The key tested here is '0x7144' (16 bits)
 
 ##### Initial State - Plain Text #####
 
@@ -13,98 +13,98 @@ The key tested here is '0x7149' (16 bits)
 
 ##### Key Expansion ##### 
 
-Round Keys 0: 7149
-Round Keys 1: DC95
-Round Keys 2: FE6B
+Round Keys 0: 0x7144
+Round Keys 1: 0x2C68
+Round Keys 2: 0x741C
 
 ### AddRoundKey [0] ###
 
 +---+---+
 | 1 | 2 | 
 +---+---+
-| 2 | D | 
+| 2 | 0 | 
 +---+---+
 
 ### SubNibbles State - Round 1 ###
 
-SubNibbles stateArray[0][0]: 4
-SubNibbles stateArray[0][1]: A
-SubNibbles stateArray[1][0]: A
-SubNibbles stateArray[1][1]: E
+SubNibbles stateArray[0][0]: 0x4
+SubNibbles stateArray[0][1]: 0xA
+SubNibbles stateArray[1][0]: 0xA
+SubNibbles stateArray[1][1]: 0x9
 
 +---+---+
 | 4 | A | 
 +---+---+
-| A | E | 
+| A | 9 | 
 +---+---+
 
 ### ShiftRows State - Round 1 ###
 
-ShiftRows stateArray[1][0]: E
-ShiftRows stateArray[1][1]: A
+ShiftRows stateArray[1][0]: 0x9
+ShiftRows stateArray[1][1]: 0xA
 
 +---+---+
 | 4 | A | 
 +---+---+
-| E | A | 
+| 9 | A | 
 +---+---+
 
 ### MixColumns State - Round 1 ###
 
 +---+---+
-| 9 | 4 | 
+| 6 | 4 | 
 +---+---+
-| D | 4 | 
+| A | 4 | 
 +---+---+
 
 ### AddRoundKey [1] ###
 
 +---+---+
-| 4 | D | 
+| 4 | 2 | 
 +---+---+
-| 1 | 1 | 
+| 6 | C | 
 +---+---+
 
 ### SubNibbles State - Round 2 ###
 
-SubNibbles stateArray[0][0]: D
-SubNibbles stateArray[0][1]: E
-SubNibbles stateArray[1][0]: 4
-SubNibbles stateArray[1][1]: 4
+SubNibbles stateArray[0][0]: 0xD
+SubNibbles stateArray[0][1]: 0xA
+SubNibbles stateArray[1][0]: 0x8
+SubNibbles stateArray[1][1]: 0xC
 
 +---+---+
-| D | E | 
+| D | A | 
 +---+---+
-| 4 | 4 | 
+| 8 | C | 
 +---+---+
 
 ### ShiftRows State - Round 2 ###
 
-ShiftRows stateArray[1][0]: 4
-ShiftRows stateArray[1][1]: 4
+ShiftRows stateArray[1][0]: 0xC
+ShiftRows stateArray[1][1]: 0x8
 
 +---+---+
-| D | E | 
+| D | A | 
 +---+---+
-| 4 | 4 | 
+| C | 8 | 
 +---+---+
 
 ### AddRoundKey [2] ###
 
 +---+---+
-| 2 | 8 | 
+| A | B | 
 +---+---+
-| A | F | 
+| 8 | 4 | 
 +---+---+
 
 ##### Final State - Encrypted Text #####
 
 +---+---+
-| 2 | 8 | 
+| A | B | 
 +---+---+
-| A | F | 
+| 8 | 4 | 
 +---+---+
 
-Encrypted Hex: 0x2A8F
-Base64 Encoded: AgoIDw==
+Encrypted Hex: 0xA8B4
+Base64 Encoded: CggLBA==
 
