@@ -40,7 +40,7 @@ uint16_t roundKeys[3] = { 0 }; // Placeholder for round keys
 /*################ Functions ################*/
 
 uint8_t SubWord(uint8_t input) {
-    return S_BOX[input]; // Perform substitution using S-Box
+    return (S_BOX[input >> 4] << 4) | S_BOX[input & 0x0F]; // Perform substitution using S-Box
 }
 
 uint8_t RotWord(uint8_t input) {
@@ -56,11 +56,11 @@ void ExpandKey(uint16_t masterKey, uint16_t roundKeys[]) {
     b[0] = (masterKey >> 8) & 0xFF; // First uint8_t
     b[1] = masterKey & 0xFF;  // Second uint8_t
 
-    b[2] = b[0] ^ SubWord(RotWord(b[1])) ^ R_CON[0]; // Substituition of the first uint8_t
+    b[2] = b[0] ^ (SubWord(RotWord(b[1])) ^ R_CON[0]); // Substituition of the first uint8_t
     b[3] = b[2] ^ b[1];
     roundKeys[1] = (b[2] << 8) | b[3]; // First round key
     
-    b[4] = b[2] ^ SubWord(RotWord(b[3])) ^ R_CON[1]; // Substitution of the second uint8_t
+    b[4] = b[2] ^ (SubWord(RotWord(b[3])) ^ R_CON[1]); // Substitution of the second uint8_t
     b[5] = b[4] ^ b[3];
     roundKeys[2] = (b[4] << 8) | b[5]; // Second round key
 
@@ -176,17 +176,26 @@ string base64Encode(const vector<uint8_t>& data) {
 int main () {
     
     cout << "This is a Simplified AES Implementation at UnB 2025.1!" << endl;
-    cout << "The plainText tested here is 'CAFE' (16 bits)" << endl;
+    cout << "The plainText tested here is 'cd' (16 bits)" << endl;
     cout << "The key tested here is '0x7149' (16 bits)" << endl;
     cout << endl;
 
-    string plainText = "CAFE"; // 16-bit plaintext
+    
+
+    // string plainText = "CAFE"; // 32-bit plaintext
     // uint16_t plainTextHex = 0x3F1B; // For testing purposes
     // uint16_t key = "0xF0CA"; // For testing purposes
+    string plainText = "cd"; // 16-bit plaintext
     uint16_t key = 0x7149; // 16-bit key
 
     // Convert hex string to unsigned short
-    unsigned short int plainTextHex = static_cast<unsigned short int>(stoul(plainText, nullptr, 16));
+    //unsigned short int plainTextHex = static_cast<unsigned short int>(stoul(plainText, nullptr, 16));
+
+    // Convert hex string to unsigned short
+    uint16_t plainTextHex = 0;
+    for (char c : plainText) {
+        plainTextHex = (plainTextHex << 8) | static_cast<uint8_t>(c);
+    }
 
     // Split the 16-bit plaintext into 4 nibbles and assign to the stateArray matrix
     stateArray[0][0] = (plainTextHex >> 12) & 0xF; // First uint4_t (most significant)
@@ -247,7 +256,7 @@ int main () {
     cout << endl;
     printState();
 
-    cout << "Encrypted Hex: " << hex << uppercase << (stateArray[0][0].to_ulong() << 12 | stateArray[1][0].to_ulong() << 8 | stateArray[0][1].to_ulong() << 4 | stateArray[1][1].to_ulong()) << endl;
+    cout << "Encrypted Hex: 0x" << hex << uppercase << (stateArray[0][0].to_ulong() << 12 | stateArray[1][0].to_ulong() << 8 | stateArray[0][1].to_ulong() << 4 | stateArray[1][1].to_ulong()) << endl;
     cout << "Base64 Encoded: ";
     vector<uint8_t> encryptedData = { static_cast<uint8_t>(stateArray[0][0].to_ulong()), static_cast<uint8_t>(stateArray[1][0].to_ulong()), static_cast<uint8_t>(stateArray[0][1].to_ulong()), static_cast<uint8_t>(stateArray[1][1].to_ulong()) };
     string base64Encoded = base64Encode(encryptedData);
