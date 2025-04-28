@@ -4,33 +4,31 @@ The key tested here is '0x7149' (16 bits)
 
 ##### Plaintext Blocks #####
 
-Block 1: 5665
-Block 2: 6e69
-Block 3: 2c20 <<1>>
-Block 4: 5669 <<2>>
-Block 5: 6469
-Block 6: 2c20 <<1>> 
-Block 7: 5669 <<2>>
-Block 8: 6369
+Block 1: 0x5665       Ve
+Block 2: 0x6E69       ni
+Block 3: 0x2C20 <<1>> , 
+Block 4: 0x5669 <<2>> Vi
+Block 5: 0x6469       di
+Block 6: 0x2C20 <<1>> , 
+Block 7: 0x5669 <<2>> Vi
+Block 8: 0x6369       ci
 
 ##### Round Keys #####
 
-Round Keys 0: 7149
-Round Keys 1: 98d1
-Round Keys 2: a978
+Round Keys 0: 0x7149
+Round Keys 1: 0xDC95
+Round Keys 2: 0xFE6B
 
 ##### Encrypted Blocks #####
 
-Block 1: 29e8
-Block 2: df12
-Block 3: 3b17 <<1>>
-Block 4: e9ef <<2>>
-Block 5: d6c2
-Block 6: 3b17 <<1>>
-Block 7: e9ef <<2>>
-Block 8: d852
+Block 1: 0x51B4
+Block 2: 0xC2A3
+Block 3: 0x20AB <<1>>
+Block 4: 0xE1B8 <<2>>
+Block 5: 0xCE33
+Block 6: 0x20AB <<1>>
+Block 7: 0xE1B8 <<2>>
+Block 8: 0xCA83
 
-Base64 Encoded: KejfEjsX6e/WwjsX6e/YUg==
+Base64 Encoded: UbTCoyCr4bjOMyCr4bjKgw==
 
-Podemos ver que em <<1>> e <<2>> que para blocos iguais o texto crifrado será o mesmo\n
-tornando inseguro o uso do modo criptográfico ECB (Electronic CodeBook).
