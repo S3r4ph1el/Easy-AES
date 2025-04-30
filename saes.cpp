@@ -13,9 +13,6 @@ typedef unsigned short uint16_t; // WORD (16 bits)
 // Round constants for key expansion
 const uint8_t R_CON[2] = { 0x80, 0x30 };
 
-// Matrix for MixColumns
-const uint8_t MIX[2][2] = {{0x1, 0x4}, {0x4, 0x1}};
-
 // Substitution box (S-Box)
 const uint8_t S_BOX[16] = {
     0x9, 0x4, 0xA, 0xB,
