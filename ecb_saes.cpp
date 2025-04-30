@@ -69,12 +69,13 @@ string base64Encode(const vector<uint8_t>& data) {
     return encoded;
 }
 
-uint8_t SubWord(uint8_t input) {
-    return (S_BOX[input >> 4] << 4) | S_BOX[input & 0x0F]; // Perform substitution using S-Box
-}
+uint8_t gFunction(uint8_t byte){
 
-uint8_t RotWord(uint8_t input) {
-    return (input << 4) | ((input >> 4) & 0xF); // Rotate nibbles
+    uint8_t rotByte = (S_BOX[byte >> 4] << 4) | S_BOX[byte & 0x0F]; // RotWord functionality
+    uint8_t subByte = (rotByte << 4) | ((rotByte >> 4) & 0xF);      // SubWord functionality
+
+    return subByte;
+    
 }
 
 void ExpandKey(uint16_t masterKey, uint16_t roundKeys[]) {
@@ -86,11 +87,11 @@ void ExpandKey(uint16_t masterKey, uint16_t roundKeys[]) {
     b[0] = (masterKey >> 8) & 0xFF; // First uint8_t
     b[1] = masterKey & 0xFF;  // Second uint8_t
 
-    b[2] = b[0] ^ (SubWord(RotWord(b[1])) ^ R_CON[0]); // Substituition of the first uint8_t
+    b[2] = b[0] ^ (gFunction(b[1]) ^ R_CON[0]); // Substituition of the first uint8_t
     b[3] = b[2] ^ b[1];
     roundKeys[1] = (b[2] << 8) | b[3]; // First round key
     
-    b[4] = b[2] ^ (SubWord(RotWord(b[3])) ^ R_CON[1]); // Substitution of the second uint8_t
+    b[4] = b[2] ^ (gFunction(b[3]) ^ R_CON[1]); // Substitution of the second uint8_t
     b[5] = b[4] ^ b[3];
     roundKeys[2] = (b[4] << 8) | b[5]; // Second round key
 
